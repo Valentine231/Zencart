@@ -42,20 +42,21 @@ export default async function Page() {
             <h2 className="mb-10 text-3xl font-bold">Featured Products</h2>
     
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {product.slice(0,4).map((products: any, i: number) => (
+              {product.slice(0,8).map((products: any, i: number) => (
                 <Card 
                 variant="outlined"
                   key={i}
                   className="rounded-lg border bg-white p-4"
                 >
-                  <div className="mb-4 h-40 rounded bg-gray-200" />
-                  <h3 className="font-semibold">{products?.name ?? 'Product Name'}</h3>
+                  <img  className="object-cover w-full h-70 rounded" src={products?.image ?? ""} alt={products?.title ?? "Product Image"}   />
+                
+                  <h3 className="font-semibold">{products?.title ?? 'Product Name'}</h3>
                   <p className="text-sm text-gray-600">{products?.price ? `$${products.price}` : '$99.99'}</p>
                 </Card>
               ))}
             </div>
           </div>
-        </section>
+        </section>S
     </>
     
   )
