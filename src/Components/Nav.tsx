@@ -11,22 +11,35 @@ export const Nav = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-gray-950  flex justify-center items-center gap-4 p-4 ">
-      <Logo />
-      <Link 
+    <nav className="bg-gray-950  flex flex-row justify-between items-center gap-4 p-4 ">
+      <div>
+          
+          
+           <Link 
       href="/"
       className={pathname === "/" ? "font-bold underline" : "text-indigo-600"}
-      >Home</Link>
-      <Link 
+      ><Logo /></Link>
+          
+     
+      </div>
+
+      <div>
+         <Link 
       href="/cart"
-      className={pathname === "/cart" ? "font-bold underline" : "text-indigo-600"}
-      >Cart</Link>
-      <SignedOut>
+      className={pathname === "/productlist" ? "font-bold underline" : "text-indigo-600"}
+      >product</Link>
+      </div>
+    
+    <div>
+   <SignedOut>
            <SignInButton mode="modal"/>
       </SignedOut>
      <SignedIn>
      <UserButton/>
      </SignedIn>
+    </div>
+     
+     
        
     </nav>
   )}
