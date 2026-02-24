@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 
 export async function POST(req:Request) {
     try {
-        const {email, amount, userId} = await req.json();
+        const {email, amount} = await req.json();
         
         // Validate required fields
         if (!email || !amount) {
@@ -60,10 +60,10 @@ export async function POST(req:Request) {
         const accessToken = authData.responseBody.accessToken;
 
         // Use the amount from request body with proper conversion
-        const NGNExchangeRate = 1342.60; // Consider fetching this from an API
+        const NGNExchangeRate = 1342.60;
         const amountInNGN = Math.round(amount * NGNExchangeRate);
 
-        // Initialize transaction with all required fields
+        // Initialize transaction with Monnify
         const paymentRes = await fetch(
             'https://sandbox.monnify.com/api/v1/merchant/transactions/init-transaction',
             {
@@ -81,7 +81,7 @@ export async function POST(req:Request) {
                     paymentReference,
                     redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?orderId=${order.id}`,
                     paymentDescription: `Order payment for ${email}`,
-                    incomeSplitConfig: [], // Required for some merchant accounts
+                    incomeSplitConfig: [],
                 }),
             }
         );
@@ -92,7 +92,8 @@ export async function POST(req:Request) {
         if (paymentRes.ok && paymentData.requestSuccessful) {
             return NextResponse.json({
                 paymentUrl: paymentData.responseBody.checkoutUrl,
-                transactionReference: paymentData.responseBody.transactionReference
+                transactionReference: paymentData.responseBody.transactionReference,
+                orderId: order.id,
             });
         } else {
             console.error("PAYMENT INIT FAILED:", paymentData);

@@ -11,11 +11,10 @@ export const dynamic = "force-dynamic";
 export default function ProductPage() {
   const loading = useProductStore((state) => state.loading);
   const products = useProductStore((state) => state.products);
-  
+
   useEffect(() => {
     console.log("ProductPage: Checking if products need to be fetched");
-    
-    // Check if products are already loaded
+
     if (products.length === 0) {
       console.log("ProductPage: Fetching products...");
       useProductStore.getState().fetchProducts();
@@ -30,15 +29,22 @@ export default function ProductPage() {
   }, [products, loading]);
 
   if (loading && products.length === 0) {
-    console.log("ProductPage: Showing loading");
     return <Loading />;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex gap-4">
-        <CategoriesSidebar />
-        <ProductGrid />
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* Mobile: column | Desktop: row */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Sidebar */}
+        <div className="w-full md:w-64">
+          <CategoriesSidebar />
+        </div>
+
+        {/* Product Grid */}
+        <div className="flex-1">
+          <ProductGrid />
+        </div>
       </div>
     </div>
   );
