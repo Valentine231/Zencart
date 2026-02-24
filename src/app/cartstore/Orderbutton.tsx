@@ -18,19 +18,23 @@ export default function OrderButton() {
       console.error("User not authenticated");
       return;
     }
-    const res = await axios.post('/api/monnifycheckout', {
-      email: user.primaryEmailAddress?.emailAddress,
-      amount: cartitems.reduce((total, item) => total + item.price * item.quantity, 0),
-      total: cartitems.reduce((total, item) => total + item.price * item.quantity, 0),
-      userId: user.id,
-    });
+    try {
+      const res = await axios.post('/api/monnifycheckout', {
+        email: user.primaryEmailAddress?.emailAddress,
+        amount: cartitems.reduce((total, item) => total + item.price * item.quantity, 0),
+        total: cartitems.reduce((total, item) => total + item.price * item.quantity, 0),
+        userId: user.id,
+      });
 
-    const data = res.data;
-    if (res.status === 200) {
-      clearCart();
-      router.push(data.paymentUrl);
-    } else {
-      console.error("Payment initiation failed:", data.error);
+      const data = res.data;
+      if (data.paymentUrl) {
+        clearCart();
+        window.location.href = data.paymentUrl;
+      } else {
+        console.error("Payment initiation failed:", data.error);
+      }
+    } catch (error: any) {
+      console.error("Payment error:", error.response?.data?.error || error.message);
     }
   };
 

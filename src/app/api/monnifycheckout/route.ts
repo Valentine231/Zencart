@@ -1,25 +1,25 @@
-import {NextResponse} from 'next/server';
-import {prisma} from '@/lib/prisma';
-import {syncUserWithClerk} from '@/lib/syncUserWithClerk';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { syncUserWithClerk } from '@/lib/syncUserWithClerk';
 
 export const runtime = 'nodejs';
 
-export async function POST(req:Request) {
+export async function POST(req: Request) {
     try {
-        const {email, amount, userId} = await req.json();
-        
+        const { email, amount, userId } = await req.json();
+
         // Validate required fields
         if (!email || !amount) {
             return NextResponse.json(
-                {error: 'Missing required fields: email, amount'}, 
-                {status: 400}
+                { error: 'Missing required fields: email, amount' },
+                { status: 400 }
             );
         }
 
         const user = await syncUserWithClerk();
 
         if (!user) {
-            return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         // Generate payment reference ONCE
@@ -45,14 +45,15 @@ export async function POST(req:Request) {
                 'Content-Type': 'application/json',
                 Authorization: `Basic ${credentials}`,
             },
+            body: JSON.stringify({}),
         });
 
         if (!authres.ok) {
             const errorData = await authres.json();
             console.error("AUTH ERROR:", errorData);
             return NextResponse.json(
-                {error: 'Failed to authenticate with Monnify'}, 
-                {status: 500}
+                { error: 'Failed to authenticate with Monnify' },
+                { status: 500 }
             );
         }
 
@@ -81,14 +82,14 @@ export async function POST(req:Request) {
                     paymentReference,
                     redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?orderId=${order.id}`,
                     paymentDescription: `Order payment for ${email}`,
-                    incomeSplitConfig: [], // Required for some merchant accounts
+                    incomeSplitConfig: [],
                 }),
             }
         );
 
         const paymentData = await paymentRes.json();
         console.log("PAYMENT INIT RESPONSE:", paymentData);
-        
+
         if (paymentRes.ok && paymentData.requestSuccessful) {
             return NextResponse.json({
                 paymentUrl: paymentData.responseBody.checkoutUrl,
@@ -97,16 +98,16 @@ export async function POST(req:Request) {
         } else {
             console.error("PAYMENT INIT FAILED:", paymentData);
             return NextResponse.json(
-                {error: paymentData.responseMessage || 'Payment initialization failed'}, 
-                {status: 500}
+                { error: paymentData.responseMessage || 'Payment initialization failed' },
+                { status: 500 }
             );
         }
-        
+
     } catch (error) {
         console.error("PAYMENT ERROR:", error);
         return NextResponse.json(
-            {error: 'Internal server error'}, 
-            {status: 500}
+            { error: 'Internal server error' },
+            { status: 500 }
         );
     }
 }

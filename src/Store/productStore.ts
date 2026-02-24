@@ -2,9 +2,6 @@
 
 import { create } from "zustand";
 
-
-
-
 type Product = {
   id: string;
   title: string;
