@@ -7,6 +7,7 @@ import Loading from "@/Components/Loading";
 import Error from "@/Components/Error";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
+import { useUser } from "@clerk/nextjs";
 
 type Order = {
   id: string;
@@ -29,6 +30,7 @@ export default function OrderPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { user }= useUser()
 
   useEffect(() => {
     async function fetchOrders() {
@@ -49,11 +51,13 @@ export default function OrderPage() {
 
   const handlepay = async (orderId: string) => {
     try {
-      const res = await axios.post("/api/create-checkout-session", {
-        orderId,
-      });
-      const { url } = res.data;
-      window.location.href = url;
+      const res = await axios.post("/api/monnifycheckout", {
+  email: user.primaryEmailAddress?.emailAddress,
+  amount: order.total,
+});
+    if(res.data){
+      window.location.href = res.data.paymenturl
+    }
     } catch (err) {
       console.error("Error creating checkout session:", err);
       alert("Failed to initiate payment. Please try again.");
@@ -112,7 +116,14 @@ export default function OrderPage() {
                 </div>
               ))}
             </div>
-            <button className="bg-green-500 py-2 rounded-lg w-15 text-blue-700" onClick={() => handlepay(order.id)}>Pay</button>
+          {order.status !== "PAID" && (
+  <button
+    className="bg-green-500 px-4 py-2 rounded-lg text-white"
+    onClick={() => handlepay(order.id)}
+  >
+    Pay
+  </button>
+)}
           </div>
         ))
       )}
