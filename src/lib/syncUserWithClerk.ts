@@ -4,8 +4,10 @@ import { prisma } from "@/lib/prisma";
 export async function syncUserWithClerk() {
   const { userId } = await auth();
 
+  // if the request didn’t include valid Clerk credentials we’ll simply
+  // return null so callers can respond with a 401 instead of crashing.
   if (!userId) {
-    throw new Error("Unauthenticated");
+    return null;
   }
 
   // 1️⃣ Try DB first (fast + safe)

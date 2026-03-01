@@ -9,15 +9,11 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    const session = await auth();
-    if (!session.userId) {
-      // Redirect to Clerk sign-in page if not authenticated
-      return Response.redirect("/sign-in");
-    }
-  }
-  // Public routes (including homepage) continue automatically
+   if (isProtectedRoute(req)) {
+    await auth.protect(); 
+   }
 });
+
 
 export const config = {
   matcher: [

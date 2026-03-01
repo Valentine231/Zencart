@@ -6,6 +6,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 
+
 export default function OrderButton() {
   const cartitems = useCartStore((state) => state.items);
   const { user } = useUser();
@@ -27,7 +28,7 @@ export default function OrderButton() {
       const res = await axios.post("/api/monnifycheckout", {
         email: user.primaryEmailAddress?.emailAddress,
         amount: totalAmount,
-      });
+      }, { withCredentials: true });
 
       console.log("Payment initialization response:", res.data);
     
@@ -57,6 +58,10 @@ export default function OrderButton() {
     </Button>
   );
 }
+
+
+
+
 
 
 

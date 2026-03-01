@@ -36,7 +36,7 @@ export default function OrderPage() {
     async function fetchOrders() {
 
       try {
-        const res = await axios.get("/api/orders");
+        const res = await axios.get("/api/orders", { withCredentials: true });
         setOrders(res.data);
       } catch (err) {
         console.error(err);
@@ -50,14 +50,32 @@ export default function OrderPage() {
   }, []);
 
   const handlepay = async (orderId: string) => {
-    try {
-      const res = await axios.post("/api/monnifycheckout", {
-  email: user.primaryEmailAddress?.emailAddress,
-  amount: order.total,
-});
-    if(res.data){
-      window.location.href = res.data.paymenturl
+    // find the order in state so we know the amount
+    const orderToPay = orders.find((o) => o.id === orderId);
+    if (!orderToPay) {
+      console.warn("Order not found for payment", orderId);
+      return;
     }
+
+    try {
+      const res = await axios.post(
+        "/api/monnifycheckout",
+        {
+          email: user.primaryEmailAddress?.emailAddress,
+          amount: orderToPay.total,
+        },
+        { withCredentials: true }
+      );
+      if (res.data) {
+        // API returns `paymentUrl` (camelCase)
+        const url = res.data.paymentUrl || res.data.paymenturl;
+        if (url) {
+          window.location.href = url;
+        } else {
+          console.error("No payment URL in response", res.data);
+          alert("Unable to start payment, missing URL");
+        }
+      }
     } catch (err) {
       console.error("Error creating checkout session:", err);
       alert("Failed to initiate payment. Please try again.");
@@ -77,10 +95,28 @@ export default function OrderPage() {
         orders.map((order) => (
           <div
             key={order.id}
-            className="border rounded-lg p-4 mb-6 space-y-2"
+            className="border rounded-lg p-6 mb-6 space-y-4 bg-white shadow-lg"
           >
-            <p><strong>Order ID:</strong> {order.id}</p>
-            <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
+            {/* order header with optional thumbnail */}
+            <div className="flex items-center justify-between">
+              <p className="flex items-center gap-2">
+                <strong>Order ID:</strong> {order.id}
+                {order.items[0] && (
+                  <Image
+                    src={order.items[0].product.images}
+                    alt="order thumbnail"
+                    width={40}
+                    height={40}
+                    className="rounded"
+                  />
+                )}
+              </p>
+
+              <p className="text-lg font-semibold">
+                ${order.total.toFixed(2)}
+              </p>
+            </div>
+
             <p>
               <strong>Status:</strong>{" "}
               <span
@@ -94,7 +130,7 @@ export default function OrderPage() {
               </span>
             </p>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {order.items.map((item) => (
                 <div
                   key={item.id}
@@ -108,22 +144,23 @@ export default function OrderPage() {
                     className="rounded"
                   />
                   <div>
-                    <p>{item.product.title}</p>
-                    <p>
+                    <p className="font-medium">{item.product.title}</p>
+                    <p className="text-sm text-gray-600">
                       {item.quantity} × ${item.product.price}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          {order.status !== "PAID" && (
-  <button
-    className="bg-green-500 px-4 py-2 rounded-lg text-white"
-    onClick={() => handlepay(order.id)}
-  >
-    Pay
-  </button>
-)}
+
+            {order.status !== "PAID" && (
+              <button
+                className="mt-4 bg-green-500 px-6 py-2 rounded-lg text-white hover:bg-green-600 transition"
+                onClick={() => handlepay(order.id)}
+              >
+                Pay Now
+              </button>
+            )}
           </div>
         ))
       )}
