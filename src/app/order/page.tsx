@@ -103,7 +103,7 @@ export default function OrderPage() {
                 <strong>Order ID:</strong> {order.id}
                 {order.items[0] && (
                   <Image
-                    src={order.items[0].product.images}
+                    src={order.items[0].product.image}
                     alt="order thumbnail"
                     width={40}
                     height={40}
