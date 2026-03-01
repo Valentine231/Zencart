@@ -61,7 +61,7 @@ export default function OrderPage() {
       const res = await axios.post(
         "/api/monnifycheckout",
         {
-          email: user.primaryEmailAddress?.emailAddress,
+          email: user?.primaryEmailAddress?.emailAddress,
           amount: orderToPay.total,
         },
         { withCredentials: true }
