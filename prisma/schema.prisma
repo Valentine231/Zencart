@@ -20,6 +20,7 @@ model User {
   id        String   @id @default(uuid())
   clerkId   String   @unique
   email     String   @unique
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
 
   orders    Order[]
@@ -75,3 +76,7 @@ enum OrderStatus {
   PAID
 }
 
+enum Role {
+  USER
+  ADMIN
+}
