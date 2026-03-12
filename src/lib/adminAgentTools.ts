@@ -1,5 +1,5 @@
 import { tool } from "ai";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "./prisma";
 import { z } from "zod";
 
 /**
@@ -10,14 +10,14 @@ export const adminAgentTools = {
   // Get all orders
   getAllOrders: tool({
     description: "Retrieve all orders with optional filtering and sorting",
-    parameters: z.object({
+    inputSchema: z.object({
       status: z
         .enum(["PENDING", "PAID"])
         .optional()
         .describe("Filter by order status"),
       limit: z.number().optional().default(20).describe("Maximum results"),
       page: z.number().optional().default(1).describe("Page number"),
-    }).strict(),
+    }),
     execute: async (args) => {
       const skip = (args.page - 1) * args.limit;
       const [orders, total] = await Promise.all([
@@ -55,7 +55,7 @@ export const adminAgentTools = {
   // Update order status
   updateOrderStatus: tool({
     description: "Update the status of an order",
-    parameters: z.object({
+    inputSchema: z.object({
       orderId: z.string().describe("The order ID"),
       status: z.enum(["PENDING", "PAID"]).describe("New status"),
     }),
@@ -83,7 +83,7 @@ export const adminAgentTools = {
   // Get user details with history
   getUserProfile: tool({
     description: "Get detailed user profile including orders and purchase history",
-    parameters: z.object({
+    inputSchema: z.object({
       userId: z.string().describe("The user ID"),
     }),
     execute: async (args) => {
@@ -127,14 +127,14 @@ export const adminAgentTools = {
   // List all users with stats
   listUsers: tool({
     description: "Get a list of users with optional filtering",
-    parameters: z.object({
+    inputSchema: z.object({
       role: z
         .enum(["USER", "ADMIN"])
         .optional()
         .describe("Filter by role"),
       limit: z.number().optional().default(20).describe("Maximum results"),
       page: z.number().optional().default(1).describe("Page number"),
-    }).strict(),
+    }),
     execute: async (args) => {
       const skip = (args.page - 1) * args.limit;
 
@@ -174,13 +174,13 @@ export const adminAgentTools = {
   // Get sales analytics
   getSalesAnalytics: tool({
     description: "Get sales metrics and analytics",
-    parameters: z.object({
+    inputSchema: z.object({
       period: z
         .enum(["day", "week", "month", "all"])
         .optional()
         .default("month")
         .describe("Time period for analytics"),
-    }).strict(),
+    }),
     execute: async (args) => {
       let dateFilter: any = {};
 
@@ -241,12 +241,12 @@ export const adminAgentTools = {
   // Product inventory check
   getProductInventory: tool({
     description: "Check product inventory and sales metrics",
-    parameters: z.object({
+    inputSchema: z.object({
       category: z
         .enum(["MEN", "WOMEN", "ACCESSORIES", "FOOTWEAR", "GLASSES", "GADGETS"])
         .optional()
         .describe("Filter by category"),
-    }).strict(),
+    }),
     execute: async (args) => {
       const products = await prisma.product.findMany({
         where: args.category ? { category: args.category } : {},
@@ -285,7 +285,7 @@ export const adminAgentTools = {
   // Bulk update product prices
   updateProductPrice: tool({
     description: "Update price for a product",
-    parameters: z.object({
+    inputSchema: z.object({
       productId: z.string().describe("The product ID"),
       newPrice: z.number().min(0).describe("New price"),
     }),
@@ -313,7 +313,7 @@ export const adminAgentTools = {
   // Generate sales report
   generateSalesReport: tool({
     description: "Generate a detailed sales report",
-    parameters: z.object({
+    inputSchema: z.object({
       startDate: z.string().optional().describe("Start date (ISO format)"),
       endDate: z.string().optional().describe("End date (ISO format)"),
     }),

@@ -42,14 +42,18 @@ model Order {
   id               String       @id @default(uuid())
   userId           String
   status           OrderStatus  @default(PENDING)
+  escrowStatus     EscrowStatus @default(HELD)
+  isPod            Boolean      @default(false)
   total            Float
   paymentReference String?      @unique
   transactionRef   String?      // Monnify transaction reference
+  dispatchVideoUrl String?      // 5-second verification clip
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
+  disputes  Dispute[]
 }
 
 model OrderItem {
@@ -59,7 +63,21 @@ model OrderItem {
   quantity  Int
 
   order     Order   @relation(fields: [orderId], references: [id])
-  product  Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Dispute {
+  id              String        @id @default(uuid())
+  orderId         String
+  reason          String
+  evidenceUrl     String?       // Photo from user for comparison
+  status          DisputeStatus @default(OPEN)
+  resolution      String?
+  aiVerdict       String?       // AI's automated decision context
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  order           Order         @relation(fields: [orderId], references: [id])
 }
 
 enum Category {
@@ -74,6 +92,20 @@ enum Category {
 enum OrderStatus {
   PENDING
   PAID
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  DISPUTED
+  REFUNDED
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  REFUNDED
+  REJECTED
 }
 
 enum Role {

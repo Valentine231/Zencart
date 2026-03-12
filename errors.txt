@@ -1,0 +1,52 @@
+src/lib/agentTools.ts(2,24): error TS2307: Cannot find module '@/lib/prisma' or its corresponding type declarations.
+src/lib/agentTools.ts(103,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ query, category, maxPrice, minPrice, limit }: z.infer<typeof searchProductsSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(145,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ productId }: z.infer<typeof getProductDetailsSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(171,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ userId, limit }: z.infer<typeof getUserOrdersSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(193,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ orderId }: z.infer<typeof getOrderDetailsSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(218,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ disputeId, verdict, resolution }: z.infer<typeof mediateDisputeSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(253,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ orderId }: z.infer<typeof trackOrderSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(278,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ category }: z.infer<typeof getCategoryStatsSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(306,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ category, page, pageSize }: z.infer<typeof browseCategorySchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(342,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ productIds }: z.infer<typeof compareProductsSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(374,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ userId, limit }: z.infer<typeof getRecommendationsSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(442,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ userId, items }: z.infer<typeof createOrderSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(485,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ productId, quantity }: z.infer<typeof addToCartSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(499,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ orderId }: z.infer<typeof checkoutSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(512,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(526,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ orderId, videoUrl }: z.infer<typeof uploadDispatchVideoSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(547,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ orderId, reason, evidenceUrl }: z.infer<typeof initiatePodDisputeSchema>) => Promise<string>' is not assignable to type 'undefined'.
+src/lib/agentTools.ts(578,5): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '({ orderId }: z.infer<typeof releaseEscrowSchema>) => Promise<string>' is not assignable to type 'undefined'.
