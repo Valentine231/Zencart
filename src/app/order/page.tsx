@@ -13,6 +13,7 @@ type Order = {
   id: string;
   total: number;
   status: string;
+  createdAt: string;
   items: {
     id: string;
     quantity: number;
@@ -118,7 +119,7 @@ export default function OrderPage() {
             </div>
 
             <p>
-              <strong>Status:</strong>{" "}
+              <strong>Payment Status:</strong>{" "}
               <span
                 className={
                   order.status === "PAID"
@@ -129,6 +130,34 @@ export default function OrderPage() {
                 {order.status}
               </span>
             </p>
+
+            {order.status === "PAID" && (
+              <div className="my-3 p-4 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+                <p className="font-semibold mb-1 text-gray-700">Delivery Status</p>
+                {(() => {
+                  if (!order.createdAt) return <p>Calculating...</p>;
+                  const createdAt = new Date(order.createdAt);
+                  const deliveryDate = new Date(createdAt.getTime() + 5 * 24 * 60 * 60 * 1000);
+                  const now = new Date();
+                  const diffTime = deliveryDate.getTime() - now.getTime();
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                  if (diffDays <= 0) {
+                    return (
+                      <p className="text-green-600 font-medium">
+                        ✓ Delivered on {deliveryDate.toLocaleDateString()}
+                      </p>
+                    );
+                  } else {
+                    return (
+                      <p className="text-blue-600 font-medium animate-pulse flex items-center gap-1">
+                        📦 On the way — Arriving in {diffDays} day(s) ({deliveryDate.toLocaleDateString()})
+                      </p>
+                    );
+                  }
+                })()}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {order.items.map((item) => (

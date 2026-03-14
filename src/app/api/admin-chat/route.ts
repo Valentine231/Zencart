@@ -52,7 +52,7 @@ Provide clear, actionable insights. Format data professionally for business deci
     tools: adminAgentTools,
   });
 
-  return result.toDataStreamResponse({
+  return result.toTextStreamResponse({
     headers: {
       "Cache-Control": "no-cache",
       "Connection": "keep-alive",
