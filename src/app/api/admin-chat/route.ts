@@ -52,9 +52,8 @@ Provide clear, actionable insights. Format data professionally for business deci
     tools: adminAgentTools,
   });
 
-  return new Response(result.toDataStream(), {
+  return result.toDataStreamResponse({
     headers: {
-      "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       "Connection": "keep-alive",
     },
