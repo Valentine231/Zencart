@@ -46,9 +46,7 @@ When admins ask:
 Provide clear, actionable insights. Format data professionally for business decisions.`;
 
   const result = streamText({
-    model: openai("gpt-4o-mini", {
-      apiKey: process.env.OPENAI_API_KEY,
-    }),
+    model: openai("gpt-4o-mini"),
     messages,
     system: systemPrompt,
     tools: adminAgentTools,
