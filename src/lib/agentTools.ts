@@ -1,5 +1,5 @@
 import { tool } from "ai";
-import { prisma } from "./prisma";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 /**
