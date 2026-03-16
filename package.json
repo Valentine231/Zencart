@@ -16,6 +16,7 @@
     "@ai-sdk/openai": "^3.0.41",
     "@ai-sdk/react": "^3.0.118",
     "@clerk/nextjs": "^6.36.5",
+    "@emotion/is-prop-valid": "^1.4.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.6",
