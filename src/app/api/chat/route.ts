@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { streamText, convertToModelMessages, stepCountIs } from "ai";
 import { agentTools } from "@/lib/agentTools";
 
 export const maxDuration = 60;
@@ -35,10 +35,11 @@ Be friendly, proactive, and "street-smart". Use markdown for readability.`;
 
   const result = streamText({
     model: openai("gpt-4o-mini"),
-    messages,
+    messages: await convertToModelMessages(messages),
     system: systemPrompt,
     tools: agentTools,
+    stopWhen: stepCountIs(5), // Allow the model to read tool results and generate a text reply
   });
 
-  return result.toTextStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

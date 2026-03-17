@@ -180,12 +180,22 @@ export const agentTools = {
   getUserOrders: tool({
     description: "Retrieve all orders for a specific user",
     inputSchema: z.object({
-      userId: z.string().describe("The user's ID"),
+      userId: z.string().describe("The user's Clerk ID"),
       limit: z.number().optional().default(10).describe("Number of orders to return"),
     }),
     execute: async ({ userId, limit }: z.infer<typeof getUserOrdersSchema>) => {
+      // Map Clerk ID to internal ID
+      const dbUser = await prisma.user.findUnique({
+        where: { clerkId: userId },
+        select: { id: true }
+      });
+
+      if (!dbUser) {
+        return JSON.stringify({ error: `User with Clerk ID ${userId} not found in database.` });
+      }
+
       const orders = await prisma.order.findMany({
-        where: { userId: userId },
+        where: { userId: dbUser.id },
         take: limit,
         include: {
           items: {
@@ -387,9 +397,20 @@ export const agentTools = {
     description: "Get product recommendations for a user based on their purchase history",
     inputSchema: getRecommendationsSchema,
     execute: async ({ userId, limit }) => {
+      // Map Clerk ID to internal ID
+      const dbUser = await prisma.user.findUnique({
+        where: { clerkId: userId },
+        select: { id: true }
+      });
+
+      if (!dbUser) {
+        // Fallback to trending if user not found
+        console.warn(`User with Clerk ID ${userId} not found for recommendations.`);
+      }
+
       // Get user's purchase history
-      const userOrders = await prisma.order.findMany({
-        where: { userId: userId },
+      const userOrders = dbUser ? await prisma.order.findMany({
+        where: { userId: dbUser.id },
         include: {
           items: {
             select: {
@@ -398,7 +419,7 @@ export const agentTools = {
             },
           },
         },
-      });
+      }) : [];
 
       if (userOrders.length === 0) {
         // If no history, return trending products
@@ -416,7 +437,7 @@ export const agentTools = {
           recommendations: products,
         });
       }
-
+      
       // Get categories from purchase history
       const categories = new Set(
         userOrders
@@ -456,6 +477,19 @@ export const agentTools = {
     inputSchema: createOrderSchema,
     execute: async ({ userId, items }) => {
       try {
+        // Map Clerk ID to internal ID
+        const dbUser = await prisma.user.findUnique({
+          where: { clerkId: userId },
+          select: { id: true }
+        });
+
+        if (!dbUser) {
+          return JSON.stringify({ 
+            success: false, 
+            error: `User with Clerk ID ${userId} not found in database. Please ensure you are logged in correctly.` 
+          });
+        }
+
         // Calculate total
         const products = await prisma.product.findMany({
           where: { id: { in: items.map((i) => i.productId) } },
@@ -469,7 +503,7 @@ export const agentTools = {
         // Create order
         const order = await prisma.order.create({
           data: {
-            userId: userId,
+            userId: dbUser.id,
             total,
             items: {
               create: items,
@@ -498,11 +532,20 @@ export const agentTools = {
     description: "Add a product to user's shopping cart (client-side action)",
     inputSchema: addToCartSchema,
     execute: async ({ productId, quantity }) => {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true, title: true, price: true, image: true }
+      });
+
+      if (!product) {
+        return JSON.stringify({ error: "Product not found" });
+      }
+
       return JSON.stringify({
         action: "addToCart",
-        productId: productId,
+        product: product,
         quantity: quantity,
-        message: `Added ${quantity} item(s) to cart`,
+        message: `Added ${quantity} item(s) to cart: ${product.title}`,
       });
     },
   }),

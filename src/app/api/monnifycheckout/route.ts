@@ -37,28 +37,36 @@ export async function POST(req: Request) {
       },
     });
 
-    //Fetch exchange rate
-const rateRes = await fetch(
-  `https://api.exchangerate.host/convert?from=USD&to=NGN&amount=${amount}&access_key=${process.env.EXCHANGE_API_KEY}`
-);
+    // Fetch exchange rate
+    let amountInNGN: number;
+    try {
+      const rateRes = await fetch(
+        `https://api.exchangerate.host/convert?from=USD&to=NGN&amount=${amount}&access_key=${process.env.EXCHANGE_API_KEY}`,
+        { next: { revalidate: 3600 } } // Cache for 1 hour
+      );
 
-const rateData = await rateRes.json();
-console.log(rateData);
+      const rateData = await rateRes.json();
+      console.log("EXCHANGE RATE DATA:", rateData);
 
-if (!rateData.result) {
-  return NextResponse.json(
-    { error: "Failed to fetch exchange rate" },
-    { status: 500 }
-  );
-}
+      if (rateData && rateData.result) {
+        amountInNGN = Math.round(rateData.result);
+      } else {
+        console.warn("Exchange rate API failed, using fallback rate.");
+        // Fallback rate (approximate)
+        const FALLBACK_RATE = 1500; 
+        amountInNGN = Math.round(amount * FALLBACK_RATE);
+      }
+    } catch (error) {
+      console.error("EXCHANGE RATE FETCH ERROR:", error);
+      // Fallback rate (approximate)
+      const FALLBACK_RATE = 1500;
+      amountInNGN = Math.round(amount * FALLBACK_RATE);
+    }
 
 
 
-// 2️⃣ Convert USD → NGN
-const amountInNGN = Math.round(rateData.result)
-
-// 3️⃣ Convert NGN → Kobo
-const amountInKobo = amountInNGN * 100;
+    // 3️⃣ Convert NGN → Kobo
+    const amountInKobo = amountInNGN * 100;
 
     
 
