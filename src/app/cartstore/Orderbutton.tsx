@@ -25,7 +25,7 @@ export default function OrderButton() {
         0
       );
 
-      const res = await axios.post("/api/monnifycheckout", {
+      const res = await axios.post("/api/paystack", {
         email: user.primaryEmailAddress?.emailAddress,
         amount: totalAmount,
       }, { withCredentials: true });

@@ -60,7 +60,7 @@ export default function OrderPage() {
 
     try {
       const res = await axios.post(
-        "/api/monnifycheckout",
+        "/api/paystack",
         {
           email: user?.primaryEmailAddress?.emailAddress,
           amount: orderToPay.total,
