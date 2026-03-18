@@ -108,6 +108,17 @@ enum DisputeStatus {
   REJECTED
 }
 
+model WhatsappMessage {
+  id              String   @id @default(uuid())
+  phoneNumber     String
+  messageType     String
+  content         String
+  mediaUrl        String?
+  waMessageId     String   @unique
+  deliveryStatus  String   @default("sent")
+  createdAt       DateTime @default(now())
+}
+
 enum Role {
   USER
   ADMIN
