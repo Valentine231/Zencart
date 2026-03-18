@@ -49,7 +49,7 @@ model Order {
   transactionRef   String?      // Monnify transaction reference
   dispatchVideoUrl String?      // 5-second verification clip
   createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  updatedAt        DateTime?     @updatedAt
 
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]

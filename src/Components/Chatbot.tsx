@@ -32,7 +32,7 @@ export default function Chatbot() {
     if (!lastMessage || lastMessage.role !== "assistant") return;
 
     lastMessage.parts.forEach((part) => {
-      if (part.type === "tool-invocation" && part.state === "result") {
+      if (part.type === "tool-invocation" && part.state === "output-available") {
         try {
           const result = JSON.parse(part.result as string);
           if (result && result.action) {
