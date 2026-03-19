@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { generateWhatsAppResponse } from "@/lib/whatsappAgent";
 
 export const runtime = "nodejs";
 
-const WHATSAPP_API_URL = "https://graph.instagram.com/v18.0";
+const WHATSAPP_API_URL = "https://graph.facebook.com/v18.0";
 const WHATSAPP_TOKEN = process.env.WHATSAPP_BUSINESS_TOKEN;
 const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -111,45 +112,7 @@ async function handleMessageStatus(status: any) {
 
 async function sendWhatsAppResponse(phoneNumber: string, userMessage: string) {
   try {
-    const isNigerianPidgin =
-      userMessage.toLowerCase().includes("wetin") ||
-      userMessage.toLowerCase().includes("na") ||
-      userMessage.toLowerCase().includes("go");
-
-    let responseText = "";
-
-    if (
-      userMessage.toLowerCase().includes("order") ||
-      userMessage.toLowerCase().includes("where is")
-    ) {
-      if (isNigerianPidgin) {
-        responseText =
-          "E don enter system now! Your order de on the way. Send me your order number make I check am for you.";
-      } else {
-        responseText =
-          "Your order is in the system! Please share your order number and I'll track it for you.";
-      }
-    } else if (
-      userMessage.toLowerCase().includes("problem") ||
-      userMessage.toLowerCase().includes("issue")
-    ) {
-      if (isNigerianPidgin) {
-        responseText =
-          "No worry, I go sort am for you. What exactly be the problem? Tell me the details make I escalate to the seller.";
-      } else {
-        responseText =
-          "No problem! Tell me what happened and I'll help resolve it.";
-      }
-    } else {
-      if (isNigerianPidgin) {
-        responseText =
-          "Hello! I be Zen-Trust, your shopping assistant. How I fit help you today?";
-      } else {
-        responseText =
-          "Hello! I'm Zen-Trust, your shopping assistant. How can I help you today?";
-      }
-    }
-
+    const responseText = await generateWhatsAppResponse(phoneNumber, userMessage);
     await sendWhatsAppMessage(phoneNumber, responseText);
   } catch (error) {
     console.error("Error sending WhatsApp response:", error);

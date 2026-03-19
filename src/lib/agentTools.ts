@@ -555,13 +555,20 @@ export const agentTools = {
     description: "Redirect user to checkout",
     inputSchema: checkoutSchema,
     execute: async ({ orderId }) => {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const checkoutUrl = orderId 
+        ? `${baseUrl}/order?id=${orderId}`
+        : `${baseUrl}/order`;
+        
       return JSON.stringify({
         action: "checkout",
         orderId: orderId,
-        message: "Redirecting to checkout...",
+        url: checkoutUrl,
+        message: `Abeg, follow this link go pay: ${checkoutUrl}`,
       });
     },
   }),
+
 
   // View cart action
   viewCart: tool({

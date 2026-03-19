@@ -7,7 +7,9 @@ import {
   Zap,
   CheckCircle2,
   Loader,
+  MessageCircle,
 } from "lucide-react";
+
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart, getToolName } from "ai";
 import { useUser } from "@clerk/nextjs";
@@ -94,12 +96,25 @@ export default function Chatbot() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={toggleChat}
-              className="text-black/80 hover:text-black hover:bg-white/10 p-1.5 rounded-full transition-colors"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              <a
+                href="https://wa.me/2348012345678"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-black/80 hover:text-black hover:bg-white/10 p-1.5 rounded-full transition-colors flex items-center gap-1 text-xs font-medium"
+                title="Chat on WhatsApp"
+              >
+                <MessageCircle size={18} />
+                <span className="hidden sm:inline">WhatsApp</span>
+              </a>
+              <button
+                onClick={toggleChat}
+                className="text-black/80 hover:text-black hover:bg-white/10 p-1.5 rounded-full transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
           </div>
 
           {/* Messages Area */}

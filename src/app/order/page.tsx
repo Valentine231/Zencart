@@ -7,6 +7,7 @@ import Loading from "@/Components/Loading";
 import Error from "@/Components/Error";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
+import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
 type Order = {
@@ -32,13 +33,22 @@ export default function OrderPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user }= useUser()
+  const searchParams = useSearchParams();
+  const targetOrderId = searchParams.get("id");
 
   useEffect(() => {
     async function fetchOrders() {
-
       try {
         const res = await axios.get("/api/orders", { withCredentials: true });
         setOrders(res.data);
+        
+        // Auto-initiate payment if order ID is in URL
+        if (targetOrderId && res.data.length > 0) {
+          const matchedOrder = res.data.find((o: Order) => o.id === targetOrderId && o.status !== "PAID");
+          if (matchedOrder) {
+            handlepay(matchedOrder.id, res.data);
+          }
+        }
       } catch (err) {
         console.error(err);
         setError("Failed to load orders");
@@ -48,11 +58,12 @@ export default function OrderPage() {
     }
 
     fetchOrders();
-  }, []);
+  }, [targetOrderId]);
 
-  const handlepay = async (orderId: string) => {
-    // find the order in state so we know the amount
-    const orderToPay = orders.find((o) => o.id === orderId);
+  const handlepay = async (orderId: string, currentOrders?: Order[]) => {
+    const ordersList = currentOrders || orders;
+    const orderToPay = ordersList.find((o) => o.id === orderId);
+
     if (!orderToPay) {
       console.warn("Order not found for payment", orderId);
       return;
