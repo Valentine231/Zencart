@@ -3,8 +3,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    // TEMPORARY MOCK FOR DEBUGGING
+    return NextResponse.json([
+      { id: "test", title: "Test Product", price: 10, category: "GADGETS", image: "" }
+    ]);
+    
+    /*
     const products = await prisma.product.findMany();
     return NextResponse.json(products);
+    */
   } catch (error: any) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
