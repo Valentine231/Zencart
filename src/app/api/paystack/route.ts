@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const { email, amount } = await req.json();
+    const { email, amount, orderId, items } = await req.json();
 
     if (!email || !amount) {
       return NextResponse.json(
@@ -25,21 +25,50 @@ export async function POST(req: Request) {
       .toString(36)
       .substring(2, 9)}`;
 
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        total: amount,
-        paymentReference,
-        status: "PENDING",
-      },
-    });
+    let order;
+
+    if (orderId) {
+      // Use existing order
+      order = await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          paymentReference,
+        },
+      });
+    } else if (items && items.length > 0) {
+      // Create new order with items
+      order = await prisma.order.create({
+        data: {
+          userId: user.id,
+          total: amount,
+          paymentReference,
+          status: "PENDING",
+          items: {
+            create: items.map((item: any) => ({
+              productId: item.productId || item.id,
+              quantity: item.quantity || 1,
+            })),
+          },
+        },
+      });
+    } else {
+      // Fallback: Create new order without items (legacy)
+      order = await prisma.order.create({
+        data: {
+          userId: user.id,
+          total: amount,
+          paymentReference,
+          status: "PENDING",
+        },
+      });
+    }
 
     const rateRes = await fetch(
       `https://api.exchangerate.host/convert?from=USD&to=NGN&amount=${amount}&access_key=${process.env.EXCHANGE_API_KEY}`
     );
 
     const rateData = await rateRes.json();
-    console.log(rateData);
+    console.log("RATE DATA:", rateData);
 
     if (!rateData.result) {
       return NextResponse.json(

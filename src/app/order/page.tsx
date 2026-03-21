@@ -75,6 +75,7 @@ export default function OrderPage() {
         {
           email: user?.primaryEmailAddress?.emailAddress,
           amount: orderToPay.total,
+          orderId: orderToPay.id,
         },
         { withCredentials: true }
       );
@@ -91,6 +92,18 @@ export default function OrderPage() {
     } catch (err) {
       console.error("Error creating checkout session:", err);
       alert("Failed to initiate payment. Please try again.");
+    }
+  }
+
+  const handleDelete = async (orderId: string) => {
+    if (!confirm("Are you sure you want to remove this order?")) return;
+    
+    try {
+      await axios.delete(`/api/orders/${orderId}`, { withCredentials: true });
+      setOrders(orders.filter(o => o.id !== orderId));
+    } catch (err) {
+      console.error("Error deleting order:", err);
+      alert("Failed to remove order. Please try again.");
     }
   }
 
@@ -193,14 +206,23 @@ export default function OrderPage() {
               ))}
             </div>
 
-            {order.status !== "PAID" && (
+            <div className="flex flex-wrap gap-2">
+              {order.status !== "PAID" && (
+                <button
+                  className="mt-4 bg-green-600 px-6 py-2 rounded-lg text-white hover:bg-green-700 font-medium transition shadow-sm"
+                  onClick={() => handlepay(order.id)}
+                >
+                  Pay Now
+                </button>
+              )}
+              
               <button
-                className="mt-4 bg-green-500 px-6 py-2 rounded-lg text-white hover:bg-green-600 transition"
-                onClick={() => handlepay(order.id)}
+                className="mt-4 bg-gray-50 px-6 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-600 transition border border-gray-200"
+                onClick={() => handleDelete(order.id)}
               >
-                Pay Now
+                Remove
               </button>
-            )}
+            </div>
           </div>
         ))
       )}

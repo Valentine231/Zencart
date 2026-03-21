@@ -36,7 +36,7 @@ export default function Chatbot() {
     lastMessage.parts.forEach((part) => {
       if (part.type === "tool-invocation" && part.state === "output-available") {
         try {
-          const result = JSON.parse(part.result as string);
+          const result = JSON.parse(part.output as string);
           if (result && result.action) {
             console.log("Executing AI Action:", result.action, result);
             

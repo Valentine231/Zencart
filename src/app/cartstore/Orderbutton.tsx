@@ -28,6 +28,10 @@ export default function OrderButton() {
       const res = await axios.post("/api/paystack", {
         email: user.primaryEmailAddress?.emailAddress,
         amount: totalAmount,
+        items: cartitems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
       }, { withCredentials: true });
 
       console.log("Payment initialization response:", res.data);

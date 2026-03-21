@@ -41,7 +41,7 @@ You are communicating with the user at phone number: ${phoneNumber}`;
       system: systemPrompt,
       prompt: message,
       tools: agentTools,
-      maxSteps: 5,
+      stopWhen: stepCountIs(5),
       onStepFinish: (step) => {
         console.log(`\n--- Step Finish ---`);
         if (step.toolCalls && step.toolCalls.length > 0) {

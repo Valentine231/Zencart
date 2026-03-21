@@ -33,7 +33,7 @@ export default function PaymentSuccess() {
           clearCart();
           // after a short delay show success then redirect back to cartstore
           setTimeout(() => {
-            router.push("/cartstore");
+            router.push("/order");
           }, 1500);
         } else {
           setStatus("failed");
