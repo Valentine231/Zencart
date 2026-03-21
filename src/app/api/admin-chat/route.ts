@@ -45,17 +45,29 @@ When admins ask:
 
 Provide clear, actionable insights. Format data professionally for business decisions.`;
 
-  const result = streamText({
-    model: openai("gpt-4o-mini"),
-    messages,
-    system: systemPrompt,
-    tools: adminAgentTools,
-  });
+  try {
+    const result = streamText({
+      model: openai("gpt-4o-mini"),
+      messages,
+      system: systemPrompt,
+      tools: adminAgentTools,
+    });
 
-  return result.toTextStreamResponse({
-    headers: {
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
-  });
+    return result.toTextStreamResponse({
+      headers: {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+  } catch (error: any) {
+    console.error("ADMIN CHAT ERROR:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: "Admin AI Connection failed", 
+        message: error.message || "Unknown error",
+        code: error.code || "No code" 
+      }), 
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }

@@ -57,8 +57,13 @@ export default function OrderButton() {
       startIcon={<ShoppingCartIcon />}
       onClick={handleOrder}
       disabled={cartitems.length === 0}
+      className={`w-full py-3.5 rounded-full font-bold text-base shadow-lg transition-all ${
+        cartitems.length === 0 
+          ? "bg-gray-200 text-gray-500 shadow-none" 
+          : "bg-green-600 hover:bg-green-700 text-white shadow-green-600/30 hover:-translate-y-0.5"
+      }`}
     >
-      Place Order
+      Proceed to Checkout
     </Button>
   );
 }

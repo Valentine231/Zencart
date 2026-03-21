@@ -2,6 +2,7 @@ import Button from "@mui/material/Button";
 import { useCartStore } from "@/Store/cartStore";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
+import { ShoppingBag } from "lucide-react";
 
 type Product = {
   id: string;
@@ -30,11 +31,10 @@ export default function AddButton({ prod }: { prod: Product }) {
   return (
     <Button
       variant="contained"
-      color="primary"
-      className="bg-indigo-600 hover:bg-indigo-700 w-full"
+      className="bg-green-600 hover:bg-green-700 w-full py-2.5 rounded-full font-bold text-sm shadow-md hover:shadow-green-600/30 transition-all flex items-center gap-2 transform active:scale-95"
       onClick={handleAddToCart}
     >
-      Add to Cart
+      <ShoppingBag size={18} /> Add to Cart
     </Button>
   );
 }

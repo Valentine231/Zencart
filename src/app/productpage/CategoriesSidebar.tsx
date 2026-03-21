@@ -24,21 +24,21 @@ export default function CategoriesSidebar() {
   }
 
   return (
-    <aside className="w-full md:w-64 bg-gray-100 p-4 rounded-lg">
-      <h3 className="font-semibold mb-4 text-base sm:text-lg">
+    <aside className="w-full lg:w-64 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm lg:sticky lg:top-24">
+      <h3 className="font-bold text-gray-900 tracking-tight mb-4 text-lg">
         Categories
       </h3>
 
       {/* Mobile: horizontal scroll */}
-      <ul className="flex md:block gap-2 md:space-y-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
+      <ul className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide">
         {categories.map((cat: any) => (
-          <li key={cat} className="flex-shrink-0 md:flex-shrink">
+          <li key={cat} className="flex-shrink-0 lg:flex-shrink">
             <button
               onClick={() => filterByCategory(cat)}
-              className={`whitespace-nowrap md:w-full text-left px-3 py-2 rounded-lg text-sm sm:text-base transition-colors duration-200 ${
+              className={`whitespace-nowrap lg:w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${
                 selectedCategory === cat
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white hover:bg-gray-200 text-blue-600"
+                  ? "bg-green-600 text-white shadow-md shadow-green-600/20"
+                  : "bg-white border border-gray-100 hover:border-green-200 hover:bg-green-50 text-gray-700 hover:text-green-800"
               }`}
             >
               {cat}

@@ -10,6 +10,8 @@ import { Nav } from "@/Components/Nav";
 import Footer from "@/Components/layout/footer";
 import CategoriesSidebar from "../productpage/CategoriesSidebar";
 import AddButton from "@/Components/Addbutton";
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 export default function CartPage() {
   const { products, filtered, selectedCategory, fetchProducts, loading, error } =
@@ -21,58 +23,110 @@ export default function CartPage() {
     }
   }, [fetchProducts, products.length]);
 
-  if (loading) return <Loading />;
-  if (error) return <Error message={error} retry={fetchProducts} />;
-  if (products.length === 0) return <p className="text-center mt-10 text-lg">Products unavailable.</p>;
-
+  if (loading) return (
+    <div className="min-h-screen flex flex-col">
+      <Nav />
+      <div className="flex-1 flex items-center justify-center bg-gray-50/30">
+        <Loading />
+      </div>
+      <Footer />
+    </div>
+  );
   
+  if (error) return (
+    <div className="min-h-screen flex flex-col">
+      <Nav />
+      <div className="flex-1 flex items-center justify-center bg-gray-50/30">
+        <Error message={error} retry={fetchProducts} />
+      </div>
+      <Footer />
+    </div>
+  );
+  
+  if (products.length === 0) return (
+    <div className="min-h-screen flex flex-col">
+      <Nav />
+      <div className="flex-1 flex items-center justify-center bg-gray-50/30">
+        <p className="text-center text-lg font-semibold text-green-800 bg-green-50 px-6 py-4 rounded-xl">Products unavailable.</p>
+      </div>
+      <Footer />
+    </div>
+  );
+
   const displayProducts = selectedCategory === "all" ? products : filtered;
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50/30 flex flex-col font-sans text-gray-900">
       <Nav />
-      <div className="flex flex-col lg:flex-row gap-4 p-3 sm:p-4 min-h-screen bg-gray-50">
+      
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-100 pt-8 pb-6 px-4 sm:px-6 lg:px-8 shadow-sm relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col gap-1">
+          <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">Shop Collection</h1>
+          <p className="text-sm lg:text-base text-green-700 font-medium tracking-wide uppercase">Find everything you need right here</p>
+        </div>
+      </div>
+
+      <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 p-4 sm:p-6 lg:p-8">
         {/* Sidebar - hidden on mobile */}
-        <div className="hidden lg:block lg:w-48 ">
+        <div className="hidden lg:block w-64 flex-shrink-0">
           <CategoriesSidebar />
         </div>
 
         {/* Mobile Categories - visible only on mobile */}
-        <div className="lg:hidden mb-4">
+        <div className="lg:hidden">
           <CategoriesSidebar />
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 flex-1 w-full">
-          {displayProducts.map((product) => (
-            <Card
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 flex-1 w-full m-0 p-0">
+          {displayProducts.map((product, idx) => (
+            <motion.div
               key={product.id}
-              className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-200 rounded-lg overflow-hidden bg-white h-full"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: Math.min(idx * 0.05, 0.5) }}
+              className="h-full"
             >
-              <div className="relative w-full h-40 sm:h-48 md:h-56 lg:h-60 overflow-hidden bg-gray-100">
-                <CardMedia
-                  component="img"
-                  image={product.image}
-                  alt={product.title}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <div className="p-3 sm:p-4 flex flex-col flex-grow">
-                <h2 className="text-sm sm:text-base md:text-lg font-semibold mb-2 line-clamp-2">
-                  {product.title}
-                </h2>
-                <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4 font-semibold">
-                  ${product.price.toFixed(2)}
-                </p>
-              </div>
-              <div className="px-3 sm:px-4 pb-3 sm:pb-4">
-                <AddButton prod={product} />
-              </div>
-            </Card>
+              <Card className="group flex flex-col h-full rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-green-900/10 transition-all duration-300 overflow-hidden bg-white">
+                <div className="relative aspect-square overflow-hidden bg-white p-6 flex items-center justify-center">
+                  <CardMedia
+                    component="img"
+                    image={product.image}
+                    alt={product.title}
+                    className="object-contain h-full w-full mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+                  />
+                </div>
+                
+                <div className="p-4 sm:p-5 flex flex-col flex-grow bg-gray-50/50 group-hover:bg-green-50/30 transition-colors border-t border-gray-50">
+                  <h2 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug mb-3 group-hover:text-green-700 transition-colors">
+                    {product.title}
+                  </h2>
+                  <div className="mt-auto flex items-center justify-between mb-4">
+                    <p className="font-black text-xl text-gray-900">
+                      ${product.price.toFixed(2)}
+                    </p>
+                    <div className="flex items-center text-yellow-400">
+                      <Star size={14} className="fill-current" />
+                      <span className="text-xs text-gray-500 font-medium ml-1 bg-white px-1.5 py-0.5 rounded-md border border-gray-100">4.9</span>
+                    </div>
+                  </div>
+                  <div className="mt-auto">
+                    <AddButton prod={product} />
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
           ))}
+          
+          {displayProducts.length === 0 && (
+            <div className="col-span-full py-12 text-center">
+              <p className="text-gray-500 text-lg">No products found in this category.</p>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }

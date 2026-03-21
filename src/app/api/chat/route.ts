@@ -27,13 +27,25 @@ Capabilities:
     : `${systemBase}\n\nBe friendly, proactive, and "street-smart". Use markdown for readability.`;
 
 
-  const result = streamText({
-    model: openai("gpt-4o-mini"),
-    messages: await convertToModelMessages(messages),
-    system: systemPrompt,
-    tools: agentTools,
-    stopWhen: stepCountIs(5), // Allow the model to read tool results and generate a text reply
-  });
+  try {
+    const result = streamText({
+      model: openai("gpt-4o-mini"),
+      messages: await convertToModelMessages(messages),
+      system: systemPrompt,
+      tools: agentTools,
+      stopWhen: stepCountIs(5),
+    });
 
-  return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse();
+  } catch (error: any) {
+    console.error("CHAT ERROR:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: "AI Connection failed", 
+        message: error.message || "Unknown error",
+        code: error.code || "No code" 
+      }), 
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }
