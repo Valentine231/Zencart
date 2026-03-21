@@ -36,10 +36,11 @@ export default function PaymentSuccess() {
             router.push("/order");
           }, 1500);
         } else {
+          console.error("Verification failed:", data);
           setStatus("failed");
         }
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        console.error("Fetch error:", err);
         setStatus("failed");
       }
     };

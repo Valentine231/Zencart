@@ -39,8 +39,15 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: false }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("VERIFY ERROR:", error);
-    return NextResponse.json({ error: "Verification failed" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Verification failed",
+        message: error.message || "Unknown error",
+        code: error.code || "No code"
+      },
+      { status: 500 }
+    );
   }
 }
