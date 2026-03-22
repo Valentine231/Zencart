@@ -16,68 +16,70 @@ export const Nav = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-950 text-white px-3 sm:px-6 py-3 sticky top-0 z-50 shadow-lg">
-      <div className="max-w-7xl mx-auto">
-        {/* Desktop/Tablet Layout */}
-        <div className="hidden sm:flex sm:items-center sm:justify-between gap-4">
+    <nav className="bg-gray-950/95 backdrop-blur-md border-b border-gray-800 text-white sticky top-0 z-50 shadow-sm transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Header Row */}
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0">
-            <div className="w-24 sm:w-28 md:w-32">
+          <Link href="/" className="flex items-center flex-shrink-0 group">
+            <div className="w-24 sm:w-28 md:w-32 transition-transform duration-300 group-hover:scale-105">
               <Logo />
             </div>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="flex gap-6 text-sm md:text-base font-medium">
+          {/* Desktop Navigation Links */}
+          <div className="hidden sm:flex items-center gap-8 text-sm md:text-base font-semibold tracking-wide">
             <Link
               href="/cart"
-              className={`transition-colors duration-200 ${
+              className={`relative group py-2 transition-colors duration-300 ${
                 pathname === "/cart"
-                  ? "text-white underline"
-                  : "text-indigo-400 hover:text-white"
+                  ? "text-white"
+                  : "text-indigo-400 hover:text-emerald-400"
               }`}
             >
               Products
+              <span className={`absolute bottom-0 left-0 w-full h-[2px] rounded-full transition-transform duration-300 origin-left ${
+                pathname === "/cart"
+                  ? "bg-white scale-x-100"
+                  : "bg-emerald-400 scale-x-0 group-hover:scale-x-100"
+              }`} />
             </Link>
 
             <Link
               href="/order"
-              className={`transition-colors duration-200 ${
+              className={`relative group py-2 transition-colors duration-300 ${
                 pathname === "/order"
-                  ? "text-white underline"
-                  : "text-indigo-400 hover:text-white"
+                  ? "text-white"
+                  : "text-indigo-400 hover:text-emerald-400"
               }`}
             >
               History
+              <span className={`absolute bottom-0 left-0 w-full h-[2px] rounded-full transition-transform duration-300 origin-left ${
+                pathname === "/order"
+                  ? "bg-white scale-x-100"
+                  : "bg-emerald-400 scale-x-0 group-hover:scale-x-100"
+              }`} />
             </Link>
           </div>
 
-          {/* Auth Section */}
-          <div className="flex items-center gap-4">
+          {/* Auth Section & Mobile Toggle */}
+          <div className="flex items-center gap-3 sm:gap-4">
             <SignedOut>
-              <SignInButton mode="modal" />
+              <div className="hover:scale-105 transition-transform duration-200">
+                <SignInButton mode="modal" />
+              </div>
             </SignedOut>
 
             <SignedIn>
-              <UserButton />
+              <div className="hover:scale-105 transition-transform duration-200 rounded-full ring-2 ring-transparent hover:ring-emerald-400">
+                <UserButton />
+              </div>
             </SignedIn>
-          </div>
-        </div>
 
-        {/* Mobile Layout */}
-        <div className="sm:hidden flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0">
-            <div className="w-20">
-              <Logo />
-            </div>
-          </Link>
-
-          {/* Mobile Menu Button + Auth */}
-          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md hover:bg-gray-800 transition"
+              className="sm:hidden p-2 rounded-lg text-indigo-400 hover:text-emerald-400 hover:bg-gray-800/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
               aria-label="Toggle menu"
             >
               <svg
@@ -103,47 +105,41 @@ export const Nav = () => {
                 )}
               </svg>
             </button>
-
-            <SignedOut>
-              <SignInButton mode="modal" />
-            </SignedOut>
-
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Menu Dropdown */}
-        {mobileMenuOpen && (
-          <div className="sm:hidden mt-4 pb-4 border-t border-gray-700 pt-4">
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/cart"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded transition-colors duration-200 ${
-                  pathname === "/cart"
-                    ? "bg-indigo-600 text-white"
-                    : "text-indigo-400 hover:bg-gray-800"
-                }`}
-              >
-                Products
-              </Link>
+      {/* Mobile Menu Dropdown */}
+      <div 
+        className={`sm:hidden transition-all duration-300 ease-in-out overflow-hidden ${
+          mobileMenuOpen ? "max-h-48 opacity-100 border-t border-gray-800" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-4 py-4 space-y-2 bg-gray-950/50 backdrop-blur-lg">
+          <Link
+            href="/cart"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
+              pathname === "/cart"
+                ? "bg-indigo-600/20 text-white border border-indigo-500/30"
+                : "text-indigo-400 hover:bg-gray-800/80 hover:text-emerald-400 hover:shadow-sm hover:-translate-y-0.5"
+            }`}
+          >
+            Products
+          </Link>
 
-              <Link
-                href="/order"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded transition-colors duration-200 ${
-                  pathname === "/order"
-                    ? "bg-indigo-600 text-white"
-                    : "text-indigo-400 hover:bg-gray-800"
-                }`}
-              >
-                History
-              </Link>
-            </div>
-          </div>
-        )}
+          <Link
+            href="/order"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
+              pathname === "/order"
+                ? "bg-indigo-600/20 text-white border border-indigo-500/30"
+                : "text-indigo-400 hover:bg-gray-800/80 hover:text-emerald-400 hover:shadow-sm hover:-translate-y-0.5"
+            }`}
+          >
+            History
+          </Link>
+        </div>
       </div>
     </nav>
   );
