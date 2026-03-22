@@ -98,7 +98,7 @@ export default function Chatbot() {
             </div>
             <div className="flex items-center gap-1">
               <a
-                href="https://wa.me/2348012345678"
+                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '2348012345678'}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-black/80 hover:text-black hover:bg-white/10 p-1.5 rounded-full transition-colors flex items-center gap-1 text-xs font-medium"
