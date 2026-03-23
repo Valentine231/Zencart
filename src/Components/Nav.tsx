@@ -30,6 +30,22 @@ export const Nav = () => {
           {/* Desktop Navigation Links */}
           <div className="hidden sm:flex items-center gap-8 text-sm md:text-base font-semibold tracking-wide">
             <Link
+              href="/cartstore"
+              className={`relative group py-2 transition-colors duration-300 ${
+                pathname === "/cartstore"
+                  ? "text-white"
+                  : "text-indigo-400 hover:text-emerald-400"
+              }`}
+            >
+              Cart Store
+              <span className={`absolute bottom-0 left-0 w-full h-[2px] rounded-full transition-transform duration-300 origin-left ${
+                pathname === "/cartstore"
+                  ? "bg-white scale-x-100"
+                  : "bg-emerald-400 scale-x-0 group-hover:scale-x-100"
+              }`} />
+            </Link>
+
+            <Link
               href="/cart"
               className={`relative group py-2 transition-colors duration-300 ${
                 pathname === "/cart"
@@ -116,6 +132,18 @@ export const Nav = () => {
         }`}
       >
         <div className="px-4 py-4 space-y-2 bg-gray-950/50 backdrop-blur-lg">
+          <Link
+            href="/cartstore"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
+              pathname === "/cartstore"
+                ? "bg-indigo-600/20 text-white border border-indigo-500/30"
+                : "text-indigo-400 hover:bg-gray-800/80 hover:text-emerald-400 hover:shadow-sm hover:-translate-y-0.5"
+            }`}
+          >
+            Cart Store
+          </Link>
+
           <Link
             href="/cart"
             onClick={() => setMobileMenuOpen(false)}
