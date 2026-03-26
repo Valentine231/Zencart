@@ -1,20 +1,35 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
 // Utility to check admin access for server actions
 async function requireAdmin() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-  });
-
-  if (!user || user.role !== "ADMIN") {
-    throw new Error("Forbidden");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("adminAuth")?.value;
+  
+  if (!token || token !== "authenticated") {
+    throw new Error("Unauthorized");
   }
+}
+
+export async function loginAdmin(passcode: string) {
+  if (passcode === process.env.ADMIN_PASSCODE) {
+    const cookieStore = await cookies();
+    cookieStore.set("adminAuth", "authenticated", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+    return { success: true };
+  }
+  return { success: false, error: "Invalid passcode" };
+}
+
+export async function logoutAdmin() {
+  const cookieStore = await cookies();
+  cookieStore.delete("adminAuth");
 }
 
 export async function getDashboardStats() {

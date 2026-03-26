@@ -22,7 +22,7 @@ export const Nav = () => {
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0 group">
-            <div className="w-24 sm:w-28 md:w-32 transition-transform duration-300 group-hover:scale-105">
+            <div className="transition-transform duration-300 group-hover:scale-105">
               <Logo />
             </div>
           </Link>

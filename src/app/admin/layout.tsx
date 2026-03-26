@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -9,18 +9,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
+  const cookieStore = await cookies();
+  const token = cookieStore.get("adminAuth")?.value;
 
-  if (!userId) {
-    redirect("/");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-  });
-
-  if (!user || user.role !== "ADMIN") {
-    redirect("/"); // Redirect non-admins to the home page
+  if (!token || token !== "authenticated") {
+    redirect("/admin-login");
   }
 
   const navigation = [
