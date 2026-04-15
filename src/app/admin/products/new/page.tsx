@@ -18,16 +18,38 @@ export default function NewProductPage() {
     setError("");
 
     const formData = new FormData(e.currentTarget);
-    const data = {
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      price: parseFloat(formData.get("price") as string),
-      image: formData.get("image") as string,
-      category: formData.get("category") as Category,
-    };
+    const file = formData.get("image") as File;
+    let imageUrl = "";
 
     try {
-      if (!data.title || !data.description || isNaN(data.price) || !data.image || !data.category) {
+      if (!file || file.size === 0) {
+        throw new Error("Please select an image");
+      }
+
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) {
+        throw new Error(uploadData.error || "Image upload failed");
+      }
+
+      imageUrl = uploadData.url;
+
+      const data = {
+        title: formData.get("title") as string,
+        description: formData.get("description") as string,
+        price: parseFloat(formData.get("price") as string),
+        image: imageUrl,
+        category: formData.get("category") as Category,
+      };
+
+      if (!data.title || !data.description || isNaN(data.price) || !data.category) {
         throw new Error("Please fill all fields correctly");
       }
 
@@ -126,14 +148,14 @@ export default function NewProductPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Image URL
+              Image Upload
             </label>
             <input
-              type="url"
+              type="file"
               name="image"
+              accept="image/*"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              placeholder="https://example.com/image.jpg"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white cursor-pointer"
             />
           </div>
 

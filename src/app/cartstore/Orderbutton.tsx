@@ -29,8 +29,13 @@ export default function OrderButton() {
         email: user.primaryEmailAddress?.emailAddress,
         amount: totalAmount,
         items: cartitems.map((item) => ({
-          productId: item.id,
+          productId: String(item.id),
           quantity: item.quantity,
+          title: item.title,
+          description: item.description,
+          price: item.price,
+          image: item.image,
+          category: item.category,
         })),
       }, { withCredentials: true });
 

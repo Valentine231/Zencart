@@ -36,6 +36,32 @@ export async function POST(req: Request) {
         },
       });
     } else if (items && items.length > 0) {
+      // Upsert items into DB so foreign key constraint does not fail for dummyjson products
+      for (const item of items) {
+        if (!item.productId || !item.title) continue;
+        
+        let cat = "ACCESSORIES";
+        const rawCat = (item.category || "").toLowerCase();
+        if (rawCat.includes("jean") || rawCat.includes("men")) cat = "MEN";
+        else if (rawCat.includes("cloths") || rawCat.includes("women")) cat = "WOMEN";
+        else if (rawCat.includes("glass")) cat = "GLASSES";
+        else if (rawCat.includes("footwear") || rawCat.includes("shoe")) cat = "FOOTWEAR";
+        else if (rawCat.includes("gadget") || rawCat.includes("electronic")) cat = "GADGETS";
+
+        await prisma.product.upsert({
+          where: { id: item.productId },
+          update: {},
+          create: {
+            id: item.productId,
+            title: item.title,
+            description: item.description || "No description provided",
+            price: Number(item.price) || 0,
+            image: item.image || "",
+            category: cat as any,
+          }
+        });
+      }
+
       // Create new order with items
       order = await prisma.order.create({
         data: {

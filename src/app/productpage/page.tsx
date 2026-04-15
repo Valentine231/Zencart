@@ -5,6 +5,7 @@ import { useProductStore } from "@/Store/productStore";
 import CategoriesSidebar from "./CategoriesSidebar";
 import ProductGrid from "./ProductGrid";
 import Loading from "@/Components/Loading";
+import SearchBar from "./SearchBar";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default function ProductPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <SearchBar />
       {/* Mobile: column | Desktop: row */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar */}

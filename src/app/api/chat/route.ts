@@ -1,11 +1,15 @@
 import { openai } from "@ai-sdk/openai";
 import { streamText, convertToModelMessages, stepCountIs } from "ai";
 import { agentTools } from "@/lib/agentTools";
+import { syncUserWithClerk } from "@/lib/syncUserWithClerk";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const { messages, userId } = await req.json();
+
+  const user = await syncUserWithClerk();
+  const userRole = user?.role || "USER";
 
   const systemBase = `You are Zen-Trust AI, a Hyper-Localised Shopping Assistant for ZenCart.
 
@@ -23,8 +27,9 @@ Capabilities:
 - Dispute Resolution: Explain how Zen-Trust mediates between buyers and sellers.`;
 
   const systemPrompt = userId
-    ? `${systemBase}\n\nYou are communicating with user ID: ${userId}`
+    ? `${systemBase}\n\nYou are communicating with user ID: ${userId}. Their role is: ${userRole}. ${userRole === "ADMIN" ? "Since they are the ADMIN, assist them with managing products, answering administrative queries, and providing relevant insights. Acknowledge them respectfully as the store owner." : "They are a standard USER. Treat them as a valued customer."}`
     : `${systemBase}\n\nBe friendly, proactive, and "street-smart". Use markdown for readability.`;
+
 
 
   try {

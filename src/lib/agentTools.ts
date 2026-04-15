@@ -1,5 +1,6 @@
 import { tool } from "ai";
 import { prisma } from "@/lib/prisma";
+import { getAllProducts } from "@/lib/getAllProducts";
 import { z } from "zod";
 
 /**
@@ -111,38 +112,37 @@ export const agentTools = {
       limit: z.number().optional().describe("Number of results"),
     }),
     execute: async ({ query, category, maxPrice, minPrice, limit }: z.infer<typeof searchProductsSchema>) => {
-      let whereClause: any = {};
+      let filtered = await getAllProducts();
 
       if (query) {
-        whereClause.OR = [
-          { title: { contains: query, mode: "insensitive" } },
-          { description: { contains: query, mode: "insensitive" } },
-        ];
+        const q = query.toLowerCase();
+        filtered = filtered.filter((p: any) => 
+          p.title.toLowerCase().includes(q) || 
+          (p.description && p.description.toLowerCase().includes(q))
+        );
       }
 
       if (category) {
-        whereClause.category = category;
+        filtered = filtered.filter((p: any) => p.category === category);
       }
 
-      if (minPrice !== undefined || maxPrice !== undefined) {
-        whereClause.price = {};
-        if (minPrice !== undefined) whereClause.price.gte = minPrice;
-        if (maxPrice !== undefined) whereClause.price.lte = maxPrice;
+      if (minPrice !== undefined) {
+        filtered = filtered.filter((p: any) => p.price >= minPrice);
+      }
+      if (maxPrice !== undefined) {
+        filtered = filtered.filter((p: any) => p.price <= maxPrice);
       }
 
-      const products = await prisma.product.findMany({
-        where: whereClause,
-        take: limit || 10,
-        select: {
-          id: true,
-          title: true,
-          price: true,
-          description: true,
-          category: true,
-          image: true,
-        },
-        orderBy: { price: "asc" },
-      });
+      filtered.sort((a: any, b: any) => a.price - b.price);
+
+      const products = filtered.slice(0, limit || 10).map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        price: p.price,
+        description: p.description,
+        category: p.category,
+        image: p.image,
+      }));
 
       return JSON.stringify(products);
     },
@@ -155,23 +155,25 @@ export const agentTools = {
       productId: z.string().describe("The product ID"),
     }),
     execute: async ({ productId }: z.infer<typeof getProductDetailsSchema>) => {
-      const product = await prisma.product.findUnique({
-        where: { id: productId },
-        include: {
-          orderItems: {
-            select: { quantity: true },
-          },
-        },
-      });
+      const allProducts = await getAllProducts();
+      const product = allProducts.find((p: any) => String(p.id) === String(productId));
 
       if (!product) {
         return JSON.stringify({ error: "Product not found" });
       }
 
-      const totalSold = product.orderItems.reduce(
+      const dbProduct = await prisma.product.findUnique({
+        where: { id: productId },
+        include: {
+          orderItems: { select: { quantity: true } },
+        },
+      });
+
+      const totalSold = dbProduct ? dbProduct.orderItems.reduce(
         (sum, item) => sum + item.quantity,
         0
-      );
+      ) : 0;
+      
       return JSON.stringify({ ...product, totalSold });
     },
   }),
@@ -301,16 +303,14 @@ export const agentTools = {
     description: "Get statistics about products in a category",
     inputSchema: getCategoryStatsSchema,
     execute: async ({ category }) => {
-      const products = await prisma.product.findMany({
-        where: { category: category },
-        select: { id: true, price: true },
-      });
+      const allProducts = await getAllProducts();
+      const products = allProducts.filter((p: any) => p.category === category);
 
       if (products.length === 0) {
         return JSON.stringify({ count: 0, message: "No products in this category" });
       }
 
-      const prices = products.map((p) => p.price);
+      const prices = products.map((p: any) => p.price);
       const avgPrice = prices.reduce((a, b) => a + b) / prices.length;
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
@@ -329,23 +329,19 @@ export const agentTools = {
     description: "Get products from a specific category with pagination",
     inputSchema: browseCategorySchema,
     execute: async ({ category, page, pageSize }) => {
+      const allProducts = await getAllProducts();
+      const productsInCategory = allProducts.filter((p: any) => p.category === category);
+      
+      const total = productsInCategory.length;
       const skip = ((page || 1) - 1) * (pageSize || 6);
-
-      const [products, total] = await Promise.all([
-        prisma.product.findMany({
-          where: { category: category },
-          skip,
-          take: pageSize || 6,
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            description: true,
-            image: true,
-          },
-        }),
-        prisma.product.count({ where: { category: category } }),
-      ]);
+      
+      const products = productsInCategory.slice(skip, skip + (pageSize || 6)).map((p: any) => ({
+         id: p.id,
+         title: p.title,
+         price: p.price,
+         description: p.description,
+         image: p.image,
+      }));
 
       return JSON.stringify({
         category: category,
@@ -365,16 +361,14 @@ export const agentTools = {
     description: "Compare specifications and prices of multiple products",
     inputSchema: compareProductsSchema,
     execute: async ({ productIds }) => {
-      const products = await prisma.product.findMany({
-        where: { id: { in: productIds } },
-        select: {
-          id: true,
-          title: true,
-          price: true,
-          category: true,
-          description: true,
-        },
-      });
+      const allProducts = await getAllProducts();
+      const products = allProducts.filter((p: any) => productIds.includes(String(p.id))).map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          price: p.price,
+          category: p.category,
+          description: p.description,
+      }));
 
       if (products.length === 0) {
         return JSON.stringify({ error: "No products found" });
@@ -423,15 +417,13 @@ export const agentTools = {
 
       if (userOrders.length === 0) {
         // If no history, return trending products
-        const products = await prisma.product.findMany({
-          take: limit,
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            category: true,
-          },
-        });
+        const allProducts = await getAllProducts();
+        const products = allProducts.slice(0, limit).map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            price: p.price,
+            category: p.category,
+        }));
         return JSON.stringify({
           type: "trending",
           recommendations: products,
@@ -450,19 +442,15 @@ export const agentTools = {
         .flatMap((o) => o.items)
         .map((item) => item.productId);
 
-      const recommendations = await prisma.product.findMany({
-        where: {
-          category: { in: Array.from(categories) as any[] },
-          id: { notIn: purchasedProductIds },
-        },
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          price: true,
-          category: true,
-        },
-      });
+      const allProducts = await getAllProducts();
+      const recommendations = allProducts.filter((p: any) => 
+        Array.from(categories).includes(p.category) && !purchasedProductIds.includes(String(p.id))
+      ).slice(0, limit).map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          price: p.price,
+          category: p.category,
+      }));
 
       return JSON.stringify({
         type: "personalized",
