@@ -63,22 +63,13 @@ export async function POST(req: Request) {
       });
     }
 
-    const rateRes = await fetch(
-      `https://api.exchangerate.host/convert?from=USD&to=NGN&amount=${amount}&access_key=${process.env.EXCHANGE_API_KEY}`
-    );
-
-    const rateData = await rateRes.json();
-    console.log("RATE DATA:", rateData);
-
-    if (!rateData.result) {
-      return NextResponse.json(
-        { error: "Failed to fetch exchange rate" },
-        { status: 500 }
-      );
-    }
-
-    const amountInNGN = Math.round(rateData.result);
+    // Use a configurable NGN/USD rate (set NGN_RATE env var, defaults to 1600)
+    // We no longer call the paid exchangerate.host API which caused 500 errors.
+    const NGN_RATE = Number(process.env.NGN_RATE) || 1600;
+    const amountInNGN = Math.round(amount * NGN_RATE);
     const amountInKobo = amountInNGN * 100;
+    console.log(`Converted $${amount} → ₦${amountInNGN} (rate: ${NGN_RATE})`);
+
 
     const paystackRes = await fetch(
       "https://api.paystack.co/transaction/initialize",
